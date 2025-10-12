@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Order Creation</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .product { border: 1px solid #ddd; padding: 10px; margin: 10px 0; }
+        button { padding: 10px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; }
+        #cart { border: 1px solid #ddd; padding: 15px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>ClickPulse Store - Test Orders</h1>
+    
+    <div id="products"></div>
+    
+    <div id="cart">
+        <h3>Cart</h3>
+        <div id="cart-items"></div>
+        <div id="cart-total">Total: $0</div>
+        <button onclick="checkout()">Checkout</button>
+        <button onclick="clearCart()">Clear Cart</button>
+    </div>
+
+    <script>
+        let products = [];
+        let cart = [];
+
+        async function loadProducts() {
+            try {
+                console.log('Loading products...');
+                const response = await fetch('http://localhost:5000/api/products');
+                if (!response.ok) {
+                    throw new Error('Server not responding');
+                }
+                products = await response.json();
+                console.log('Products loaded:', products.length);
+                displayProducts();
+            } catch (error) {
+                console.error('Error loading products:', error);
+                document.getElementById('products').innerHTML = '<p style="color: red;">Error: Make sure Express server is running on port 5000</p>';
+            }
+        }
+
+        function displayProducts() {
+            const container = document.getElementById('products');
+            container.innerHTML = products.map(p => `
+                <div class="product">
+                    <h4>${p.name} - $${p.price}</h4>
+                    <p>Category: ${p.category} | Stock: ${p.stock}</p>
+                    <button onclick="addToCart(${p.id})" style="cursor: pointer;">Add to Cart</button>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(productId) {
+            console.log('Adding product to cart:', productId);
+            const product = products.find(p => p.id === productId);
+            if (!product) {
+                alert('Product not found!');
+                return;
+            }
+            
+            const existingItem = cart.find(item => item.productId === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+                console.log('Updated quantity for:', product.name);
+            } else {
+                cart.push({ productId, quantity: 1, price: product.price });
+                console.log('Added new item:', product.name);
+            }
+            
+            updateCart();
+            alert(`Added ${product.name} to cart!`);
+        }
+
+        function updateCart() {
+            const cartItems = document.getElementById('cart-items');
+            const cartTotal = document.getElementById('cart-total');
+            
+            cartItems.innerHTML = cart.map(item => {
+                const product = products.find(p => p.id === item.productId);
+                return `<div>${product.name} x${item.quantity} - $${item.price * item.quantity}</div>`;
+            }).join('');
+            
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            cartTotal.textContent = `Total: $${total}`;
+        }
+
+        function clearCart() {
+            cart = [];
+            updateCart();
+        }
+
+        async function checkout() {
+            if (cart.length === 0) {
+                alert('Cart is empty!');
+                return;
+            }
+
+            const customerName = prompt('Enter your name:');
+            const phone = prompt('Enter your phone:');
+            
+            if (!customerName || !phone) return;
+
+            const order = {
+                customerName,
+                phone,
+                items: cart
+            };
+
+            const response = await fetch('http://localhost:5000/api/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(order)
+            });
+
+            const result = await response.json();
+            alert(`Order created! Order ID: #${result.id}`);
+            clearCart();
+        }
+
+        loadProducts();
+    </script>
+</body>
+</html>
