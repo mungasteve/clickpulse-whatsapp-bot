@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Allow: /store.html
+Allow: /shop.html
+Allow: /admin/
+
+Sitemap: https://clickpulse.store/sitemap.xml
+
+# ClickPulse - Premium WhatsApp E-commerce Store
+# AI-powered shopping with instant checkout
