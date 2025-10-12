@@ -1,6 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
+let users = [];
+let sessions = {};
+
 module.exports = (req, res) => {
   const products = [
     { id: 1, name: "ClickPulse Smartphone", price: 999, category: "electronics", stock: 10 },
@@ -17,6 +20,41 @@ module.exports = (req, res) => {
   if (req.url === '/api/products') {
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(products));
+  } else if (req.url === '/api/signup' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      const { email, password, name } = JSON.parse(body);
+      if (users.find(u => u.email === email)) {
+        res.setHeader('Content-Type', 'application/json');
+        res.statusCode = 400;
+        res.end(JSON.stringify({ error: 'User already exists' }));
+      } else {
+        const user = { id: Date.now(), email, password, name };
+        users.push(user);
+        const token = 'token_' + Date.now();
+        sessions[token] = user.id;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ success: true, token, user: { id: user.id, email, name } }));
+      }
+    });
+  } else if (req.url === '/api/login' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      const { email, password } = JSON.parse(body);
+      const user = users.find(u => u.email === email && u.password === password);
+      if (user) {
+        const token = 'token_' + Date.now();
+        sessions[token] = user.id;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ success: true, token, user: { id: user.id, email: user.email, name: user.name } }));
+      } else {
+        res.setHeader('Content-Type', 'application/json');
+        res.statusCode = 401;
+        res.end(JSON.stringify({ error: 'Invalid credentials' }));
+      }
+    });
   } else if (req.url === '/admin') {
     res.setHeader('Content-Type', 'text/html');
     res.end(`<h1>ClickPulse Admin</h1><h2>Products: ${products.length}</h2>`);
@@ -69,9 +107,15 @@ module.exports = (req, res) => {
     <header class="header">
         <nav class="nav">
             <div class="logo">ClickPulse</div>
-            <div class="cart-icon" onclick="toggleCart()">
-                <i class="fas fa-shopping-cart"></i>
-                <span class="cart-count" id="cartCount">0</span>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <div id="userSection">
+                    <button onclick="showLogin()" style="background: none; border: 1px solid white; color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer;">Login</button>
+                    <button onclick="showSignup()" style="background: white; color: #667eea; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; margin-left: 0.5rem;">Sign Up</button>
+                </div>
+                <div class="cart-icon" onclick="toggleCart()">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count" id="cartCount">0</span>
+                </div>
             </div>
         </nav>
     </header>
@@ -92,7 +136,33 @@ module.exports = (req, res) => {
         <div class="products-grid" id="productsGrid"></div>
     </div>
 
-    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+    <div class="overlay" id="overlay" onclick="closeModals()"></div>
+    
+    <!-- Auth Modal -->
+    <div id="authModal" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); z-index: 1001; width: 400px; max-width: 90vw; display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2 id="modalTitle">Login</h2>
+            <button onclick="closeModals()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+        </div>
+        
+        <form id="authForm">
+            <div id="nameField" style="margin-bottom: 1rem; display: none;">
+                <input type="text" id="name" placeholder="Full Name" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;">
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <input type="email" id="email" placeholder="Email" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;">
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <input type="password" id="password" placeholder="Password" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;">
+            </div>
+            <button type="submit" id="authSubmit" style="width: 100%; background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; padding: 12px; border-radius: 8px; font-size: 16px; cursor: pointer;">Login</button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 1rem;">
+            <span id="switchText">Don't have an account?</span>
+            <button id="switchBtn" onclick="switchAuthMode()" style="background: none; border: none; color: #667eea; cursor: pointer; text-decoration: underline;">Sign Up</button>
+        </div>
+    </div>
     <div class="cart-sidebar" id="cartSidebar">
         <div class="cart-header">
             <h2>Shopping Cart</h2>
@@ -113,6 +183,15 @@ module.exports = (req, res) => {
     <script>
         let products = ${JSON.stringify(products)};
         let cart = [];
+        let currentUser = null;
+        let isLoginMode = true;
+        
+        // Check for saved user session
+        const savedToken = localStorage.getItem('authToken');
+        if (savedToken) {
+            currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            updateUserUI();
+        }
 
         function displayProducts(productsToShow) {
             const grid = document.getElementById('productsGrid');
@@ -198,6 +277,95 @@ module.exports = (req, res) => {
         }
 
         displayProducts(products);
+        
+        function showLogin() {
+            isLoginMode = true;
+            document.getElementById('modalTitle').textContent = 'Login';
+            document.getElementById('nameField').style.display = 'none';
+            document.getElementById('authSubmit').textContent = 'Login';
+            document.getElementById('switchText').textContent = "Don't have an account?";
+            document.getElementById('switchBtn').textContent = 'Sign Up';
+            document.getElementById('authModal').style.display = 'block';
+            document.getElementById('overlay').classList.add('active');
+        }
+        
+        function showSignup() {
+            isLoginMode = false;
+            document.getElementById('modalTitle').textContent = 'Sign Up';
+            document.getElementById('nameField').style.display = 'block';
+            document.getElementById('authSubmit').textContent = 'Sign Up';
+            document.getElementById('switchText').textContent = 'Already have an account?';
+            document.getElementById('switchBtn').textContent = 'Login';
+            document.getElementById('authModal').style.display = 'block';
+            document.getElementById('overlay').classList.add('active');
+        }
+        
+        function switchAuthMode() {
+            if (isLoginMode) showSignup(); else showLogin();
+        }
+        
+        function closeModals() {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('cartSidebar').classList.remove('open');
+            document.getElementById('overlay').classList.remove('active');
+        }
+        
+        function updateUserUI() {
+            const userSection = document.getElementById('userSection');
+            if (currentUser) {
+                userSection.innerHTML = \`
+                    <span style="color: white; margin-right: 1rem;">Hi, \${currentUser.name}!</span>
+                    <button onclick="logout()" style="background: none; border: 1px solid white; color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer;">Logout</button>
+                \`;
+            } else {
+                userSection.innerHTML = \`
+                    <button onclick="showLogin()" style="background: none; border: 1px solid white; color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer;">Login</button>
+                    <button onclick="showSignup()" style="background: white; color: #667eea; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; margin-left: 0.5rem;">Sign Up</button>
+                \`;
+            }
+        }
+        
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            updateUserUI();
+            cart = [];
+            updateCartUI();
+        }
+        
+        document.getElementById('authForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const name = document.getElementById('name').value;
+            
+            const endpoint = isLoginMode ? '/api/login' : '/api/signup';
+            const body = isLoginMode ? { email, password } : { email, password, name };
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentUser = data.user;
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('currentUser', JSON.stringify(data.user));
+                    updateUserUI();
+                    closeModals();
+                    document.getElementById('authForm').reset();
+                } else {
+                    alert(data.error || 'Authentication failed');
+                }
+            } catch (error) {
+                alert('Network error. Please try again.');
+            }
+        });
     </script>
 </body>
 </html>`);
