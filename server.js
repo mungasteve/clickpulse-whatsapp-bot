@@ -5,16 +5,22 @@ let users = [];
 let sessions = {};
 
 module.exports = (req, res) => {
+  // Generate AI product image
+  const generateProductImage = (productName, category) => {
+    const seed = productName.toLowerCase().replace(/\s+/g, '-');
+    return `https://picsum.photos/seed/${seed}/400/400`;
+  };
+
   const products = [
-    { id: 1, name: "ClickPulse Smartphone", price: 999, category: "electronics", stock: 10 },
-    { id: 2, name: "ClickPulse Laptop Pro", price: 1999, category: "electronics", stock: 5 },
-    { id: 3, name: "ClickPulse Wireless Earbuds", price: 249, category: "electronics", stock: 15 },
-    { id: 4, name: "ClickPulse Premium T-Shirt", price: 29, category: "clothing", stock: 50 },
-    { id: 5, name: "ClickPulse Denim Collection", price: 79, category: "clothing", stock: 25 },
-    { id: 6, name: "ClickPulse Hoodie Edition", price: 59, category: "clothing", stock: 30 },
-    { id: 7, name: "ClickPulse Coffee Maker", price: 89, category: "home", stock: 8 },
-    { id: 8, name: "ClickPulse Bluetooth Speaker", price: 129, category: "home", stock: 12 },
-    { id: 9, name: "ClickPulse Smart Lamp", price: 45, category: "home", stock: 20 }
+    { id: 1, name: "ClickPulse Smartphone", price: 999, category: "electronics", stock: 10, image: generateProductImage("ClickPulse Smartphone", "electronics") },
+    { id: 2, name: "ClickPulse Laptop Pro", price: 1999, category: "electronics", stock: 5, image: generateProductImage("ClickPulse Laptop Pro", "electronics") },
+    { id: 3, name: "ClickPulse Wireless Earbuds", price: 249, category: "electronics", stock: 15, image: generateProductImage("ClickPulse Wireless Earbuds", "electronics") },
+    { id: 4, name: "ClickPulse Premium T-Shirt", price: 29, category: "clothing", stock: 50, image: generateProductImage("ClickPulse Premium T-Shirt", "clothing") },
+    { id: 5, name: "ClickPulse Denim Collection", price: 79, category: "clothing", stock: 25, image: generateProductImage("ClickPulse Denim Collection", "clothing") },
+    { id: 6, name: "ClickPulse Hoodie Edition", price: 59, category: "clothing", stock: 30, image: generateProductImage("ClickPulse Hoodie Edition", "clothing") },
+    { id: 7, name: "ClickPulse Coffee Maker", price: 89, category: "home", stock: 8, image: generateProductImage("ClickPulse Coffee Maker", "home") },
+    { id: 8, name: "ClickPulse Bluetooth Speaker", price: 129, category: "home", stock: 12, image: generateProductImage("ClickPulse Bluetooth Speaker", "home") },
+    { id: 9, name: "ClickPulse Smart Lamp", price: 45, category: "home", stock: 20, image: generateProductImage("ClickPulse Smart Lamp", "home") }
   ];
 
   if (req.url === '/api/products') {
@@ -198,7 +204,7 @@ module.exports = (req, res) => {
             grid.innerHTML = productsToShow.map(product => \`
                 <div class="product-card">
                     <div class="product-image">
-                        <i class="fas fa-\${getProductIcon(product.category)}"></i>
+                        <img src="\${product.image}" alt="\${product.name}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'; this.parentNode.innerHTML='<i class=\"fas fa-\${getProductIcon(product.category)}\" style=\"font-size: 3rem; color: #667eea;\"></i>';">
                     </div>
                     <div class="product-info">
                         <div class="product-name">\${product.name}</div>
