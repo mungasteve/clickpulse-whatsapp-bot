@@ -851,20 +851,11 @@ app.get('/api/store/info', (req, res) => {
   res.json(storeInfo);
 });
 
-server.listen(PORT, () => {
-  console.log(`🚀 ClickPulse Server running on http://localhost:${PORT}`);
-  console.log(`📦 ${products.length} products loaded`);
-  console.log(`🔗 WebSocket server running for real-time updates`);
-  console.log(`🤖 AI recommendations engine active`);
-  console.log(`💬 Interactive AI chat engine ready`);
-  console.log(`📊 Advanced analytics enabled`);
-  console.log(`🎯 Marketing automation ready`);
-  console.log(`👑 Loyalty program initialized`);
-  console.log(`🎪 Customer segmentation active`);
-  console.log(`⚠️ Inventory monitoring enabled`);
-  console.log(`📢 Campaign management ready`);
-  console.log(`🧠 AI knowledge base loaded`);
-  console.log(`\n🌟 ALL ADVANCED FEATURES ACTIVATED! 🌟`);
-  console.log(`🔥 This is now the HOTTEST e-commerce bot! 🔥`);
-  console.log(`💬 AI can now chat about EVERYTHING! 💬`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  server.listen(PORT, () => {
+    console.log(`🚀 ClickPulse Server running on http://localhost:${PORT}`);
+    console.log(`📦 ${products.length} products loaded`);
+  });
+}
+
+module.exports = app;
