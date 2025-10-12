@@ -89,15 +89,15 @@
 
     <script>
         const products = [
-            { id: 1, name: "ClickPulse Smartphone", price: 999, category: "electronics", stock: 10, image: "https://picsum.photos/seed/clickpulse-smartphone/400/400" },
-            { id: 2, name: "ClickPulse Laptop Pro", price: 1999, category: "electronics", stock: 5, image: "https://picsum.photos/seed/clickpulse-laptop-pro/400/400" },
-            { id: 3, name: "ClickPulse Wireless Earbuds", price: 249, category: "electronics", stock: 15, image: "https://picsum.photos/seed/clickpulse-wireless-earbuds/400/400" },
-            { id: 4, name: "ClickPulse Premium T-Shirt", price: 29, category: "clothing", stock: 50, image: "https://picsum.photos/seed/clickpulse-premium-t-shirt/400/400" },
-            { id: 5, name: "ClickPulse Denim Collection", price: 79, category: "clothing", stock: 25, image: "https://picsum.photos/seed/clickpulse-denim-collection/400/400" },
-            { id: 6, name: "ClickPulse Hoodie Edition", price: 59, category: "clothing", stock: 30, image: "https://picsum.photos/seed/clickpulse-hoodie-edition/400/400" },
-            { id: 7, name: "ClickPulse Coffee Maker", price: 89, category: "home", stock: 8, image: "https://picsum.photos/seed/clickpulse-coffee-maker/400/400" },
-            { id: 8, name: "ClickPulse Bluetooth Speaker", price: 129, category: "home", stock: 12, image: "https://picsum.photos/seed/clickpulse-bluetooth-speaker/400/400" },
-            { id: 9, name: "ClickPulse Smart Lamp", price: 45, category: "home", stock: 20, image: "https://picsum.photos/seed/clickpulse-smart-lamp/400/400" }
+            { id: 1, name: "ClickPulse Smartphone", price: 999, category: "electronics", stock: 10, image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop" },
+            { id: 2, name: "ClickPulse Laptop Pro", price: 1999, category: "electronics", stock: 5, image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=400&fit=crop" },
+            { id: 3, name: "ClickPulse Wireless Earbuds", price: 249, category: "electronics", stock: 15, image: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=400&h=400&fit=crop" },
+            { id: 4, name: "ClickPulse Premium T-Shirt", price: 29, category: "clothing", stock: 50, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop" },
+            { id: 5, name: "ClickPulse Denim Collection", price: 79, category: "clothing", stock: 25, image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=400&fit=crop" },
+            { id: 6, name: "ClickPulse Hoodie Edition", price: 59, category: "clothing", stock: 30, image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400&h=400&fit=crop" },
+            { id: 7, name: "ClickPulse Coffee Maker", price: 89, category: "home", stock: 8, image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop" },
+            { id: 8, name: "ClickPulse Bluetooth Speaker", price: 129, category: "home", stock: 12, image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop" },
+            { id: 9, name: "ClickPulse Smart Lamp", price: 45, category: "home", stock: 20, image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop" }
         ];
         
         let cart = [];
@@ -124,14 +124,15 @@
             return icons[category] || 'box';
         }
 
-        function filterProducts(category) {
+        window.filterProducts = function(category) {
             const filtered = category === 'all' ? products : products.filter(p => p.category === category);
             displayProducts(filtered);
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             if (event && event.target) event.target.classList.add('active');
         }
 
-        function addToCart(productId) {
+        // Make addToCart globally accessible
+        window.addToCart = function(productId) {
             console.log('Adding to cart:', productId);
             const product = products.find(p => p.id === productId);
             console.log('Found product:', product);
@@ -185,17 +186,17 @@
             updateCartUI();
         }
 
-        function toggleCart() {
+        window.toggleCart = function() {
             document.getElementById('cartSidebar').classList.toggle('open');
             document.getElementById('overlay').classList.toggle('active');
         }
 
-        function closeModals() {
+        window.closeModals = function() {
             document.getElementById('cartSidebar').classList.remove('open');
             document.getElementById('overlay').classList.remove('active');
         }
 
-        function checkout() {
+        window.checkout = function() {
             if (cart.length === 0) return alert('Your cart is empty!');
             const message = `Hi! I'd like to order:\n${cart.map(item => `${item.name} x${item.quantity} - $${(item.price * item.quantity).toFixed(2)}`).join('\n')}\n\nTotal: $${cart.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}`;
             window.open(`https://wa.me/1234567890?text=${encodeURIComponent(message)}`);
