@@ -1,0 +1,35 @@
+{
+  "name": "ClickPulse WhatsApp E-commerce Bot",
+  "description": "Production-ready WhatsApp e-commerce bot with AI chat engine, real-time analytics, and professional admin dashboard",
+  "repository": "https://github.com/mungasteve/clickpulse-whatsapp-bot",
+  "logo": "https://img.icons8.com/color/96/whatsapp.png",
+  "keywords": [
+    "whatsapp-bot",
+    "ecommerce",
+    "nodejs",
+    "ai-chatbot",
+    "express",
+    "websocket"
+  ],
+  "env": {
+    "NODE_ENV": {
+      "description": "Node environment",
+      "value": "production"
+    },
+    "PORT": {
+      "description": "Port for the application",
+      "value": "5000"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}

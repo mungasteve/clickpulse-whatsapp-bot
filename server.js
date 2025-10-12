@@ -3,7 +3,7 @@ const cors = require('cors');
 const WebSocket = require('ws');
 const http = require('http');
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
