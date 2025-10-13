@@ -88,20 +88,56 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem 0; }
-        .nav { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 2rem; }
-        .logo { font-size: 2rem; font-weight: bold; }
-        .cart-icon { position: relative; font-size: 1.5rem; cursor: pointer; }
-        .cart-count { position: absolute; top: -8px; right: -8px; background: #ff6b6b; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-        .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center; padding: 4rem 2rem; }
-        .hero h1 { font-size: 3rem; margin-bottom: 1rem; }
-        .hero p { font-size: 1.2rem; margin-bottom: 2rem; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
-        .product-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
+        .header { background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .top-bar { padding: 12px 16px; border-bottom: 1px solid #e5e5e5; }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; }
+        .menu-btn, .profile-btn, .cart-btn { background: none; border: none; font-size: 20px; color: #333; cursor: pointer; padding: 8px; }
+        .logo { font-size: 24px; font-weight: bold; color: #e53e3e; }
+        .header-icons { display: flex; gap: 8px; align-items: center; }
+        .cart-btn { position: relative; }
+        .search-container { padding: 8px 16px; background: #f7f7f7; }
+        .search-wrapper { position: relative; display: flex; align-items: center; background: white; border-radius: 24px; padding: 8px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .search-icon { color: #666; margin-right: 8px; }
+        .mobile-search { border: none; outline: none; flex: 1; font-size: 16px; }
+        .search-btn { background: none; border: none; color: #666; font-size: 18px; cursor: pointer; }
+        .categories-bar { padding: 8px 0; background: white; border-bottom: 1px solid #e5e5e5; overflow-x: auto; }
+        .category-scroll { display: flex; gap: 8px; padding: 0 16px; white-space: nowrap; }
+        .category-btn { background: #f0f0f0; border: none; padding: 8px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; white-space: nowrap; }
+        .category-btn.active { background: #e53e3e; color: white; }
+        .cart-count { position: absolute; top: -4px; right: -4px; background: #e53e3e; color: white; border-radius: 50%; min-width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; }
+        .mobile-hero { background: linear-gradient(135deg, #e53e3e 0%, #ff6b6b 100%); color: white; padding: 16px; margin-bottom: 8px; }
+        .hero-content h2 { font-size: 20px; margin-bottom: 4px; font-weight: 600; }
+        .hero-content p { font-size: 14px; opacity: 0.9; }
+        @media (min-width: 768px) { 
+            .mobile-hero { padding: 24px; } 
+            .hero-content h2 { font-size: 28px; } 
+            .hero-content p { font-size: 16px; } 
+        }
+        .mobile-filters { padding: 8px 16px; background: white; border-bottom: 1px solid #e5e5e5; }
+        .filter-row { display: flex; gap: 8px; align-items: center; }
+        .mobile-select { flex: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; background: white; }
+        .filter-btn { background: #f0f0f0; border: 1px solid #ddd; padding: 8px 12px; border-radius: 4px; font-size: 14px; cursor: pointer; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0; }
+        @media (min-width: 768px) { 
+            .container { padding: 0; max-width: 1200px; } 
+            .mobile-filters { padding: 12px 16px; }
+            .filter-row { max-width: 1200px; margin: 0 auto; }
+        }
+        .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 8px; }
+        .product-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e5e5e5; }
+        @media (min-width: 768px) { 
+            .products-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 16px; } 
+            .nav-container { max-width: 1200px; margin: 0 auto; }
+            .search-container { max-width: 1200px; margin: 0 auto; }
+            .category-scroll { max-width: 1200px; margin: 0 auto; }
+        }
+        @media (min-width: 1024px) { 
+            .products-grid { grid-template-columns: repeat(5, 1fr); } 
+        }
         .product-card:hover { transform: translateY(-5px); }
-        .product-image { width: 100%; height: 200px; overflow: hidden; position: relative; cursor: pointer; }
-        .product-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+        .product-image { width: 100%; height: 160px; overflow: hidden; position: relative; }
+        .product-image img { width: 100%; height: 100%; object-fit: cover; }
+        @media (min-width: 768px) { .product-image { height: 220px; } }
         .product-image:hover img { transform: scale(1.1); }
         .product-badge { position: absolute; top: 10px; right: 10px; background: #ff6b6b; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; }
         .wishlist-btn { position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -110,10 +146,16 @@
         .rating { display: flex; align-items: center; gap: 5px; margin-bottom: 0.5rem; }
         .stars { color: #ffc107; }
         .review-count { color: #666; font-size: 0.9rem; }
-        .product-info { padding: 1.5rem; }
-        .product-name { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; }
-        .product-price { font-size: 1.5rem; font-weight: bold; color: #ff6b6b; margin-bottom: 1rem; }
-        .add-to-cart { width: 100%; background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
+        .product-info { padding: 12px; }
+        .product-name { font-size: 14px; font-weight: 500; margin-bottom: 4px; line-height: 1.3; color: #333; }
+        .product-price { font-size: 16px; font-weight: bold; color: #e53e3e; margin-bottom: 8px; }
+        @media (min-width: 768px) { 
+            .product-info { padding: 16px; } 
+            .product-name { font-size: 16px; } 
+            .product-price { font-size: 18px; } 
+        }
+        .add-to-cart { width: 100%; background: #e53e3e; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; }
+        @media (min-width: 768px) { .add-to-cart { padding: 10px; font-size: 15px; } }
         .add-to-cart:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
         .recommendations { margin-top: 3rem; }
         .recommendations h3 { text-align: center; margin-bottom: 2rem; color: #333; }
@@ -150,67 +192,79 @@
     <div class="status">✅ LIVE VERSION - Cart Working!</div>
     
     <header class="header">
-        <nav class="nav">
-            <div class="logo">ClickPulse Store</div>
-            <div class="cart-icon" onclick="toggleCart()">
-                <i class="fas fa-shopping-cart"></i>
-                <span class="cart-count" id="cartCount">0</span>
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="nav-container">
+                <button class="menu-btn" onclick="toggleMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">ClickPulse</div>
+                <div class="header-icons">
+                    <button class="profile-btn" onclick="toggleProfile()">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <button class="cart-btn" onclick="toggleCart()">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </button>
+                </div>
             </div>
-        </nav>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="search-container">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="mobileSearchInput" placeholder="Search for anything" class="mobile-search">
+                <button class="search-btn">
+                    <i class="fas fa-camera"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Categories Bar -->
+        <div class="categories-bar">
+            <div class="category-scroll">
+                <button class="category-btn active" onclick="filterMobile('all')">All</button>
+                <button class="category-btn" onclick="filterMobile('electronics')">Electronics</button>
+                <button class="category-btn" onclick="filterMobile('clothing')">Fashion</button>
+                <button class="category-btn" onclick="filterMobile('home')">Home</button>
+                <button class="category-btn" onclick="filterMobile('deals')">Deals</button>
+            </div>
+        </div>
     </header>
 
-    <section class="hero">
-        <h1>ClickPulse Official Website</h1>
-        <p>The World's #1 AI-Powered WhatsApp E-commerce Platform</p>
-        <div style="margin-top: 1rem; font-size: 1.1rem;">
-            <span style="background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; margin: 0 10px;">✨ AI Recommendations</span>
-            <span style="background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; margin: 0 10px;">⚡ Instant WhatsApp Checkout</span>
-            <span style="background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 20px; margin: 0 10px;">🏆 Premium Features</span>
+    <!-- Mobile Hero Banner -->
+    <div class="mobile-hero">
+        <div class="hero-content">
+            <h2>Welcome to ClickPulse</h2>
+            <p>AI-powered shopping with instant WhatsApp checkout</p>
         </div>
-        <div style="margin-top: 2rem;">
-            <a href="https://twitter.com/intent/tweet?text=Check%20out%20ClickPulse%20-%20AI-powered%20WhatsApp%20e-commerce!&url=https://clickpulse.store" target="_blank" style="background: #1da1f2; color: white; padding: 10px 20px; margin: 5px; border-radius: 5px; text-decoration: none;">📱 Share on Twitter</a>
-            <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://clickpulse.store" target="_blank" style="background: #0077b5; color: white; padding: 10px 20px; margin: 5px; border-radius: 5px; text-decoration: none;">💼 Share on LinkedIn</a>
-        </div>
-    </section>
+    </div>
 
+    <!-- Mobile Filters -->
+    <div class="mobile-filters">
+        <div class="filter-row">
+            <select id="priceFilter" class="mobile-select">
+                <option value="all">Price</option>
+                <option value="0-50">Under $50</option>
+                <option value="50-100">$50-$100</option>
+                <option value="100-500">$100-$500</option>
+                <option value="500+">$500+</option>
+            </select>
+            <select id="sortBy" class="mobile-select">
+                <option value="relevance">Sort</option>
+                <option value="price-low">Price ↑</option>
+                <option value="price-high">Price ↓</option>
+                <option value="rating">Rating</option>
+            </select>
+            <button class="filter-btn" onclick="toggleFilters()">
+                <i class="fas fa-filter"></i> Filter
+            </button>
+        </div>
+    </div>
+    
     <div class="container">
-        <!-- Premium Membership Banner -->
-        <div class="membership-banner">
-            <h3><i class="fas fa-crown"></i> ClickPulse Premium</h3>
-            <p>Get free WhatsApp delivery notifications, priority support & exclusive deals for just $9.99/month!</p>
-            <button style="background: white; color: #667eea; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; margin-top: 10px; cursor: pointer;">Start Free Trial</button>
-        </div>
-        <!-- Advanced Search Bar -->
-        <div style="margin-bottom: 2rem;">
-            <div style="position: relative; max-width: 600px; margin: 0 auto;">
-                <input type="text" id="searchInput" placeholder="Search products... (try 'smartphone', 'under $100', 'bestseller')" style="width: 100%; padding: 15px 50px 15px 20px; border: 2px solid #ddd; border-radius: 25px; font-size: 16px;">
-                <i class="fas fa-search" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #666;"></i>
-                <div id="searchSuggestions" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 1000; display: none;"></div>
-            </div>
-            
-            <!-- Advanced Filters -->
-            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap;">
-                <select id="priceFilter" style="padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px;">
-                    <option value="all">All Prices</option>
-                    <option value="0-50">Under $50</option>
-                    <option value="50-100">$50 - $100</option>
-                    <option value="100-500">$100 - $500</option>
-                    <option value="500+">$500+</option>
-                </select>
-                <select id="ratingFilter" style="padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px;">
-                    <option value="all">All Ratings</option>
-                    <option value="4+">4+ Stars</option>
-                    <option value="4.5+">4.5+ Stars</option>
-                </select>
-                <select id="sortBy" style="padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px;">
-                    <option value="relevance">Best Match</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                    <option value="rating">Customer Rating</option>
-                    <option value="reviews">Most Reviews</option>
-                </select>
-            </div>
-        </div>
         
         <div class="products-grid" id="productsGrid"></div>
         
@@ -649,17 +703,54 @@
             }
         }
         
+        // Mobile functions
+        function toggleMenu() {
+            // Mobile menu toggle
+            console.log('Menu toggled');
+        }
+        
+        function toggleProfile() {
+            // Profile menu toggle
+            console.log('Profile toggled');
+        }
+        
+        function filterMobile(category) {
+            // Update active category
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Filter products
+            const filtered = category === 'all' ? products : products.filter(p => p.category === category);
+            displayFilteredProducts(filtered);
+        }
+        
+        function toggleFilters() {
+            console.log('Filters toggled');
+        }
+        
+        // Mobile search sync
+        document.getElementById('mobileSearchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            let filtered = products.filter(p => 
+                p.name.toLowerCase().includes(query) || p.badge.toLowerCase().includes(query)
+            );
+            filtered = applyFilters(filtered);
+            displayFilteredProducts(filtered);
+        });
+        
         // Initialize
         displayProducts();
         displayRecommendations();
         displayRecentlyViewed();
-        startFlashSale();
         
-        // Show random social proof every 10 seconds
+        // Remove flash sale for mobile-first design
+        // startFlashSale();
+        
+        // Show random social proof every 15 seconds (less frequent on mobile)
         setInterval(() => {
             const randomProduct = products[Math.floor(Math.random() * products.length)];
             showSocialProof(randomProduct.name);
-        }, 10000);
+        }, 15000);
         
         // Add CSS animation
         const style = document.createElement('style');
