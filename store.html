@@ -114,6 +114,17 @@
         .social-proof { position: fixed; bottom: 20px; left: 20px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 1000; max-width: 300px; }
         .notification-popup { animation: slideInLeft 0.5s ease; }
         @keyframes slideInLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+        .premium-badge { background: linear-gradient(45deg, #ffd700, #ffed4e); color: #333; padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; }
+        .one-click-buy { background: linear-gradient(45deg, #ff6b6b, #feca57); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; cursor: pointer; margin-left: 10px; }
+        .reviews-section { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee; }
+        .review-item { padding: 10px; border-bottom: 1px solid #f0f0f0; }
+        .verified-purchase { color: #28a745; font-size: 0.8rem; font-weight: bold; }
+        .search-suggestion { padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+        .search-suggestion:hover { background: #f8f9fa; }
+        .membership-banner { background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 15px; border-radius: 10px; margin-bottom: 2rem; text-align: center; }
+        .qa-section { margin-top: 1rem; }
+        .question { background: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 5px; }
+        .answer { padding: 10px; margin-left: 20px; border-left: 3px solid #667eea; }
         .cart-sidebar { position: fixed; right: -400px; top: 0; width: 400px; height: 100vh; background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.1); transition: right 0.3s ease; z-index: 1000; }
         .cart-sidebar.open { right: 0; }
         .cart-header { padding: 2rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
@@ -150,11 +161,41 @@
     </section>
 
     <div class="container">
-        <!-- Search Bar -->
+        <!-- Premium Membership Banner -->
+        <div class="membership-banner">
+            <h3><i class="fas fa-crown"></i> ClickPulse Premium</h3>
+            <p>Get free WhatsApp delivery notifications, priority support & exclusive deals for just $9.99/month!</p>
+            <button style="background: white; color: #667eea; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; margin-top: 10px; cursor: pointer;">Start Free Trial</button>
+        </div>
+        <!-- Advanced Search Bar -->
         <div style="margin-bottom: 2rem;">
-            <div style="position: relative; max-width: 500px; margin: 0 auto;">
-                <input type="text" id="searchInput" placeholder="Search products..." style="width: 100%; padding: 15px 50px 15px 20px; border: 2px solid #ddd; border-radius: 25px; font-size: 16px;">
+            <div style="position: relative; max-width: 600px; margin: 0 auto;">
+                <input type="text" id="searchInput" placeholder="Search products... (try 'smartphone', 'under $100', 'bestseller')" style="width: 100%; padding: 15px 50px 15px 20px; border: 2px solid #ddd; border-radius: 25px; font-size: 16px;">
                 <i class="fas fa-search" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #666;"></i>
+                <div id="searchSuggestions" style="position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 1000; display: none;"></div>
+            </div>
+            
+            <!-- Advanced Filters -->
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap;">
+                <select id="priceFilter" style="padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px;">
+                    <option value="all">All Prices</option>
+                    <option value="0-50">Under $50</option>
+                    <option value="50-100">$50 - $100</option>
+                    <option value="100-500">$100 - $500</option>
+                    <option value="500+">$500+</option>
+                </select>
+                <select id="ratingFilter" style="padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px;">
+                    <option value="all">All Ratings</option>
+                    <option value="4+">4+ Stars</option>
+                    <option value="4.5+">4.5+ Stars</option>
+                </select>
+                <select id="sortBy" style="padding: 8px 15px; border: 1px solid #ddd; border-radius: 20px;">
+                    <option value="relevance">Best Match</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="rating">Customer Rating</option>
+                    <option value="reviews">Most Reviews</option>
+                </select>
             </div>
         </div>
         
@@ -205,6 +246,31 @@
         let cart = [];
         let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
         let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
+        let isPremiumMember = localStorage.getItem('isPremium') === 'true';
+        
+        // Enhanced product data with reviews and Q&A
+        const productReviews = {
+            1: [
+                { name: "John D.", rating: 5, text: "Amazing phone! Camera quality is outstanding.", verified: true, date: "Dec 15, 2024" },
+                { name: "Sarah M.", rating: 4, text: "Great value for money. Fast delivery too!", verified: true, date: "Dec 12, 2024" }
+            ],
+            2: [
+                { name: "Mike R.", rating: 5, text: "Perfect for work and gaming. Highly recommend!", verified: true, date: "Dec 10, 2024" }
+            ]
+        };
+        
+        const productQA = {
+            1: [
+                { question: "Does this phone support 5G?", answer: "Yes, it supports both 4G and 5G networks.", asker: "Tom K.", answerer: "ClickPulse Team" },
+                { question: "What's the battery life like?", answer: "Easily lasts a full day with heavy usage.", asker: "Lisa P.", answerer: "Verified Buyer" }
+            ]
+        };
+        
+        const searchSuggestions = [
+            "smartphone under $1000", "bestseller electronics", "new arrivals", "sale items", 
+            "wireless earbuds", "premium t-shirt", "coffee maker", "trending products",
+            "4+ star rating", "free shipping", "limited edition", "customer favorite"
+        ];
 
         function displayProducts() {
             const grid = document.getElementById('productsGrid');
@@ -389,14 +455,98 @@
             }, 1000);
         }
         
-        // Search functionality
+        // Advanced Search functionality
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
-            const filtered = products.filter(p => 
-                p.name.toLowerCase().includes(query) || 
-                p.badge.toLowerCase().includes(query)
-            );
+            
+            // Show search suggestions
+            if (query.length > 0) {
+                const suggestions = searchSuggestions.filter(s => s.toLowerCase().includes(query)).slice(0, 5);
+                const suggestionsHtml = suggestions.map(s => 
+                    `<div class="search-suggestion" onclick="selectSuggestion('${s}')">${s}</div>`
+                ).join('');
+                document.getElementById('searchSuggestions').innerHTML = suggestionsHtml;
+                document.getElementById('searchSuggestions').style.display = 'block';
+            } else {
+                document.getElementById('searchSuggestions').style.display = 'none';
+            }
+            
+            // Filter products with advanced logic
+            let filtered = products.filter(p => {
+                const nameMatch = p.name.toLowerCase().includes(query);
+                const badgeMatch = p.badge.toLowerCase().includes(query);
+                const priceMatch = query.includes('under') && query.includes('$') ? 
+                    p.price < parseInt(query.match(/\d+/)?.[0] || 0) : true;
+                const ratingMatch = query.includes('star') ? p.rating >= 4 : true;
+                
+                return nameMatch || badgeMatch || (priceMatch && query.includes('under')) || (ratingMatch && query.includes('star'));
+            });
+            
+            // Apply filters
+            filtered = applyFilters(filtered);
             displayFilteredProducts(filtered);
+        });
+        
+        // Filter event listeners
+        ['priceFilter', 'ratingFilter', 'sortBy'].forEach(filterId => {
+            document.getElementById(filterId).addEventListener('change', () => {
+                const query = document.getElementById('searchInput').value.toLowerCase();
+                let filtered = query ? products.filter(p => 
+                    p.name.toLowerCase().includes(query) || p.badge.toLowerCase().includes(query)
+                ) : products;
+                filtered = applyFilters(filtered);
+                displayFilteredProducts(filtered);
+            });
+        });
+        
+        function selectSuggestion(suggestion) {
+            document.getElementById('searchInput').value = suggestion;
+            document.getElementById('searchSuggestions').style.display = 'none';
+            document.getElementById('searchInput').dispatchEvent(new Event('input'));
+        }
+        
+        function applyFilters(products) {
+            let filtered = [...products];
+            
+            // Price filter
+            const priceFilter = document.getElementById('priceFilter').value;
+            if (priceFilter !== 'all') {
+                const [min, max] = priceFilter.split('-').map(p => p.replace('+', '') === p ? parseInt(p) : Infinity);
+                filtered = filtered.filter(p => p.price >= min && (max === Infinity || p.price <= max));
+            }
+            
+            // Rating filter
+            const ratingFilter = document.getElementById('ratingFilter').value;
+            if (ratingFilter !== 'all') {
+                const minRating = parseFloat(ratingFilter.replace('+', ''));
+                filtered = filtered.filter(p => p.rating >= minRating);
+            }
+            
+            // Sort
+            const sortBy = document.getElementById('sortBy').value;
+            switch (sortBy) {
+                case 'price-low': filtered.sort((a, b) => a.price - b.price); break;
+                case 'price-high': filtered.sort((a, b) => b.price - a.price); break;
+                case 'rating': filtered.sort((a, b) => b.rating - a.rating); break;
+                case 'reviews': filtered.sort((a, b) => b.reviews - a.reviews); break;
+            }
+            
+            return filtered;
+        }
+        
+        // One-click buy for premium members
+        function oneClickBuy(productId) {
+            const product = products.find(p => p.id === productId);
+            const message = `🚀 ONE-CLICK ORDER:\n${product.name} - $${product.price}\n\nPremium Member - Express Checkout!`;
+            window.open(`https://wa.me/1234567890?text=${encodeURIComponent(message)}`);
+            showNotification(`${product.name} ordered via One-Click! 🚀`);
+        }
+        
+        // Hide search suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#searchInput') && !e.target.closest('#searchSuggestions')) {
+                document.getElementById('searchSuggestions').style.display = 'none';
+            }
         });
         
         function displayFilteredProducts(productsToShow) {
