@@ -157,8 +157,13 @@
         .add-to-cart { width: 100%; background: #e53e3e; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 14px; }
         @media (min-width: 768px) { .add-to-cart { padding: 10px; font-size: 15px; } }
         .add-to-cart:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
-        .recommendations { margin-top: 3rem; }
-        .recommendations h3 { text-align: center; margin-bottom: 2rem; color: #333; }
+        .section-divider { height: 8px; background: #f7f7f7; margin: 16px 0; }
+        .recommendations { padding: 16px 0; }
+        .section-title { font-size: 20px; font-weight: 600; margin-bottom: 16px; padding: 0 16px; color: #333; }
+        @media (min-width: 768px) { 
+            .section-title { padding: 0; max-width: 1200px; margin: 0 auto 16px auto; }
+            .recommendations { padding: 24px 0; }
+        }
         .flash-sale { background: linear-gradient(45deg, #ff6b6b, #feca57); color: white; padding: 1rem; border-radius: 10px; margin-bottom: 2rem; text-align: center; }
         .countdown { font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem; }
         .social-proof { position: fixed; bottom: 20px; left: 20px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 1000; max-width: 300px; }
@@ -185,11 +190,24 @@
         .checkout-btn { width: 100%; background: linear-gradient(45deg, #ff6b6b, #feca57); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1.1rem; cursor: pointer; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .overlay.active { opacity: 1; visibility: visible; }
-        .status { position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 10px 20px; border-radius: 5px; z-index: 1001; }
+        .footer { background: #2d3748; color: white; margin-top: 32px; }
+        .footer-content { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; padding: 24px 16px; }
+        .footer-section h4 { font-size: 16px; margin-bottom: 12px; font-weight: 600; }
+        .footer-section ul { list-style: none; }
+        .footer-section li { margin-bottom: 8px; }
+        .footer-section a { color: #cbd5e0; text-decoration: none; font-size: 14px; }
+        .footer-section a:hover { color: white; }
+        .footer-bottom { border-top: 1px solid #4a5568; padding: 16px; text-align: center; font-size: 12px; color: #a0aec0; }
+        .footer-links { margin-top: 8px; }
+        .footer-links a { color: #cbd5e0; margin: 0 8px; text-decoration: none; }
+        @media (min-width: 768px) { 
+            .footer-content { grid-template-columns: repeat(4, 1fr); max-width: 1200px; margin: 0 auto; padding: 32px 16px; }
+            .footer-bottom { max-width: 1200px; margin: 0 auto; }
+        }
     </style>
 </head>
 <body>
-    <div class="status">✅ LIVE VERSION - Cart Working!</div>
+
     
     <header class="header">
         <!-- Top Bar -->
@@ -269,17 +287,64 @@
         <div class="products-grid" id="productsGrid"></div>
         
         <!-- Recommendations -->
+        <div class="section-divider"></div>
         <div class="recommendations">
-            <h3>Customers Also Bought</h3>
+            <h3 class="section-title">Recommended for you</h3>
             <div class="products-grid" id="recommendationsGrid"></div>
         </div>
         
         <!-- Recently Viewed -->
         <div class="recommendations" id="recentlyViewedSection" style="display: none;">
-            <h3>Recently Viewed</h3>
+            <h3 class="section-title">Recently viewed</h3>
             <div class="products-grid" id="recentlyViewedGrid"></div>
         </div>
     </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Buy</h4>
+                <ul>
+                    <li><a href="#">Registration</a></li>
+                    <li><a href="#">ClickPulse Money Back Guarantee</a></li>
+                    <li><a href="#">Bidding & buying help</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Sell</h4>
+                <ul>
+                    <li><a href="#">Start selling</a></li>
+                    <li><a href="#">Learn to sell</a></li>
+                    <li><a href="#">Business sellers</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>About ClickPulse</h4>
+                <ul>
+                    <li><a href="#">Company info</a></li>
+                    <li><a href="#">News</a></li>
+                    <li><a href="#">Careers</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Help & Contact</h4>
+                <ul>
+                    <li><a href="#">Seller Information Center</a></li>
+                    <li><a href="#">Contact us</a></li>
+                    <li><a href="#">WhatsApp Support</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Copyright © 1995-2024 ClickPulse Inc. All Rights Reserved.</p>
+            <div class="footer-links">
+                <a href="#">User Agreement</a>
+                <a href="#">Privacy</a>
+                <a href="#">Cookies</a>
+            </div>
+        </div>
+    </footer>
 
     <div class="overlay" id="overlay" onclick="closeCart()"></div>
     
