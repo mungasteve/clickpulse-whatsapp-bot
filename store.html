@@ -92,13 +92,28 @@
         .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
         .product-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
         .product-card:hover { transform: translateY(-5px); }
-        .product-image { width: 100%; height: 200px; overflow: hidden; }
-        .product-image img { width: 100%; height: 100%; object-fit: cover; }
+        .product-image { width: 100%; height: 200px; overflow: hidden; position: relative; cursor: pointer; }
+        .product-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+        .product-image:hover img { transform: scale(1.1); }
+        .product-badge { position: absolute; top: 10px; right: 10px; background: #ff6b6b; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; }
+        .wishlist-btn { position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .quick-view { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; opacity: 0; transition: opacity 0.3s ease; }
+        .product-card:hover .quick-view { opacity: 1; }
+        .rating { display: flex; align-items: center; gap: 5px; margin-bottom: 0.5rem; }
+        .stars { color: #ffc107; }
+        .review-count { color: #666; font-size: 0.9rem; }
         .product-info { padding: 1.5rem; }
         .product-name { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem; }
         .product-price { font-size: 1.5rem; font-weight: bold; color: #ff6b6b; margin-bottom: 1rem; }
         .add-to-cart { width: 100%; background: linear-gradient(45deg, #667eea, #764ba2); color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
         .add-to-cart:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4); }
+        .recommendations { margin-top: 3rem; }
+        .recommendations h3 { text-align: center; margin-bottom: 2rem; color: #333; }
+        .flash-sale { background: linear-gradient(45deg, #ff6b6b, #feca57); color: white; padding: 1rem; border-radius: 10px; margin-bottom: 2rem; text-align: center; }
+        .countdown { font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem; }
+        .social-proof { position: fixed; bottom: 20px; left: 20px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 1000; max-width: 300px; }
+        .notification-popup { animation: slideInLeft 0.5s ease; }
+        @keyframes slideInLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }
         .cart-sidebar { position: fixed; right: -400px; top: 0; width: 400px; height: 100vh; background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.1); transition: right 0.3s ease; z-index: 1000; }
         .cart-sidebar.open { right: 0; }
         .cart-header { padding: 2rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
@@ -135,7 +150,27 @@
     </section>
 
     <div class="container">
+        <!-- Search Bar -->
+        <div style="margin-bottom: 2rem;">
+            <div style="position: relative; max-width: 500px; margin: 0 auto;">
+                <input type="text" id="searchInput" placeholder="Search products..." style="width: 100%; padding: 15px 50px 15px 20px; border: 2px solid #ddd; border-radius: 25px; font-size: 16px;">
+                <i class="fas fa-search" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #666;"></i>
+            </div>
+        </div>
+        
         <div class="products-grid" id="productsGrid"></div>
+        
+        <!-- Recommendations -->
+        <div class="recommendations">
+            <h3>Customers Also Bought</h3>
+            <div class="products-grid" id="recommendationsGrid"></div>
+        </div>
+        
+        <!-- Recently Viewed -->
+        <div class="recommendations" id="recentlyViewedSection" style="display: none;">
+            <h3>Recently Viewed</h3>
+            <div class="products-grid" id="recentlyViewedGrid"></div>
+        </div>
     </div>
 
     <div class="overlay" id="overlay" onclick="closeCart()"></div>
@@ -159,32 +194,54 @@
 
     <script>
         const products = [
-            { id: 1, name: "ClickPulse Smartphone", price: 999, image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop" },
-            { id: 2, name: "ClickPulse Laptop Pro", price: 1999, image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=400&fit=crop" },
-            { id: 3, name: "Wireless Earbuds", price: 249, image: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=400&h=400&fit=crop" },
-            { id: 4, name: "Premium T-Shirt", price: 29, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop" },
-            { id: 5, name: "Denim Jeans", price: 79, image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=400&fit=crop" },
-            { id: 6, name: "Coffee Maker", price: 89, image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop" }
+            { id: 1, name: "ClickPulse Smartphone", price: 999, originalPrice: 1199, image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop", rating: 4.8, reviews: 1247, badge: "BESTSELLER", inStock: 15 },
+            { id: 2, name: "ClickPulse Laptop Pro", price: 1999, originalPrice: 2299, image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=400&fit=crop", rating: 4.9, reviews: 892, badge: "NEW", inStock: 8 },
+            { id: 3, name: "Wireless Earbuds", price: 249, originalPrice: 299, image: "https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=400&h=400&fit=crop", rating: 4.7, reviews: 2156, badge: "SALE", inStock: 23 },
+            { id: 4, name: "Premium T-Shirt", price: 29, originalPrice: 39, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=400&fit=crop", rating: 4.6, reviews: 543, badge: "LIMITED", inStock: 67 },
+            { id: 5, name: "Denim Jeans", price: 79, originalPrice: 99, image: "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=400&fit=crop", rating: 4.5, reviews: 321, badge: "TRENDING", inStock: 34 },
+            { id: 6, name: "Coffee Maker", price: 89, originalPrice: 129, image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop", rating: 4.8, reviews: 756, badge: "HOT", inStock: 12 }
         ];
         
         let cart = [];
+        let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
 
         function displayProducts() {
             const grid = document.getElementById('productsGrid');
-            grid.innerHTML = products.map(product => `
-                <div class="product-card">
+            grid.innerHTML = products.map(product => {
+                const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+                const isWishlisted = wishlist.includes(product.id);
+                return `
+                <div class="product-card" onclick="viewProduct(${product.id})">
                     <div class="product-image">
                         <img src="${product.image}" alt="${product.name}">
+                        <div class="product-badge">${product.badge}</div>
+                        <button class="wishlist-btn" onclick="event.stopPropagation(); toggleWishlist(${product.id})">
+                            <i class="fas fa-heart" style="color: ${isWishlisted ? '#ff6b6b' : '#ccc'}"></i>
+                        </button>
+                        <div class="quick-view">Quick View</div>
                     </div>
                     <div class="product-info">
                         <div class="product-name">${product.name}</div>
-                        <div class="product-price">$${product.price}</div>
-                        <button class="add-to-cart" onclick="addToCart(${product.id})">
+                        <div class="rating">
+                            <div class="stars">${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5-Math.floor(product.rating))}</div>
+                            <span>${product.rating}</span>
+                            <span class="review-count">(${product.reviews} reviews)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem;">
+                            <div class="product-price">$${product.price}</div>
+                            <div style="text-decoration: line-through; color: #999; font-size: 0.9rem;">$${product.originalPrice}</div>
+                            <div style="background: #28a745; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.8rem;">${discount}% OFF</div>
+                        </div>
+                        <div style="color: ${product.inStock > 10 ? '#28a745' : '#ff6b6b'}; font-size: 0.9rem; margin-bottom: 1rem;">
+                            ${product.inStock > 10 ? 'In Stock' : `Only ${product.inStock} left!`}
+                        </div>
+                        <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id})">
                             <i class="fas fa-cart-plus"></i> Add to Cart
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function addToCart(productId) {
@@ -199,6 +256,52 @@
             
             updateCartUI();
             showNotification(`${product.name} added to cart!`);
+            showSocialProof(product.name);
+        }
+        
+        function toggleWishlist(productId) {
+            const product = products.find(p => p.id === productId);
+            if (wishlist.includes(productId)) {
+                wishlist = wishlist.filter(id => id !== productId);
+                showNotification(`${product.name} removed from wishlist`);
+            } else {
+                wishlist.push(productId);
+                showNotification(`${product.name} added to wishlist!`);
+            }
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+            displayProducts();
+        }
+        
+        function viewProduct(productId) {
+            if (!recentlyViewed.includes(productId)) {
+                recentlyViewed.unshift(productId);
+                if (recentlyViewed.length > 5) recentlyViewed.pop();
+                localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
+            }
+        }
+        
+        function showSocialProof(productName) {
+            const notifications = [
+                `Someone in New York just bought ${productName}`,
+                `${productName} was added to cart 3 times in the last hour`,
+                `5 people are viewing ${productName} right now`,
+                `${productName} is trending in Electronics`
+            ];
+            
+            const notification = document.createElement('div');
+            notification.className = 'social-proof notification-popup';
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-fire" style="color: #ff6b6b;"></i>
+                    <div>
+                        <div style="font-weight: 600; font-size: 0.9rem;">${notifications[Math.floor(Math.random() * notifications.length)]}</div>
+                        <div style="color: #666; font-size: 0.8rem;">Just now</div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 4000);
         }
 
         function removeFromCart(productId) {
@@ -262,8 +365,138 @@
             setTimeout(() => notification.remove(), 2000);
         }
 
+        // Flash Sale Countdown
+        function startFlashSale() {
+            const flashSaleHtml = `
+                <div class="flash-sale">
+                    <h3><i class="fas fa-bolt"></i> FLASH SALE - Limited Time Only!</h3>
+                    <p>Extra 20% off on all electronics!</p>
+                    <div class="countdown" id="countdown">Ends in: 02:45:30</div>
+                </div>
+            `;
+            document.querySelector('.container').insertAdjacentHTML('afterbegin', flashSaleHtml);
+            
+            // Countdown timer
+            let timeLeft = 2 * 3600 + 45 * 60 + 30; // 2h 45m 30s
+            setInterval(() => {
+                const hours = Math.floor(timeLeft / 3600);
+                const minutes = Math.floor((timeLeft % 3600) / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('countdown').textContent = 
+                    `Ends in: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                timeLeft--;
+                if (timeLeft < 0) timeLeft = 0;
+            }, 1000);
+        }
+        
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = products.filter(p => 
+                p.name.toLowerCase().includes(query) || 
+                p.badge.toLowerCase().includes(query)
+            );
+            displayFilteredProducts(filtered);
+        });
+        
+        function displayFilteredProducts(productsToShow) {
+            const grid = document.getElementById('productsGrid');
+            if (productsToShow.length === 0) {
+                grid.innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;">No products found. Try a different search term.</div>';
+                return;
+            }
+            
+            grid.innerHTML = productsToShow.map(product => {
+                const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+                const isWishlisted = wishlist.includes(product.id);
+                return `
+                <div class="product-card" onclick="viewProduct(${product.id})">
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.name}">
+                        <div class="product-badge">${product.badge}</div>
+                        <button class="wishlist-btn" onclick="event.stopPropagation(); toggleWishlist(${product.id})">
+                            <i class="fas fa-heart" style="color: ${isWishlisted ? '#ff6b6b' : '#ccc'}"></i>
+                        </button>
+                        <div class="quick-view">Quick View</div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="rating">
+                            <div class="stars">${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5-Math.floor(product.rating))}</div>
+                            <span>${product.rating}</span>
+                            <span class="review-count">(${product.reviews} reviews)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 0.5rem;">
+                            <div class="product-price">$${product.price}</div>
+                            <div style="text-decoration: line-through; color: #999; font-size: 0.9rem;">$${product.originalPrice}</div>
+                            <div style="background: #28a745; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.8rem;">${discount}% OFF</div>
+                        </div>
+                        <div style="color: ${product.inStock > 10 ? '#28a745' : '#ff6b6b'}; font-size: 0.9rem; margin-bottom: 1rem;">
+                            ${product.inStock > 10 ? 'In Stock' : `Only ${product.inStock} left!`}
+                        </div>
+                        <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id})">
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+        
+        // Display recommendations
+        function displayRecommendations() {
+            const recommendedProducts = products.slice(0, 3); // Show first 3 as recommendations
+            document.getElementById('recommendationsGrid').innerHTML = recommendedProducts.map(product => {
+                const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+                return `
+                <div class="product-card" onclick="viewProduct(${product.id})">
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.name}">
+                        <div class="product-badge">${product.badge}</div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-price">$${product.price}</div>
+                        <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id})">
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+        
+        // Display recently viewed
+        function displayRecentlyViewed() {
+            if (recentlyViewed.length > 0) {
+                document.getElementById('recentlyViewedSection').style.display = 'block';
+                const recentProducts = recentlyViewed.map(id => products.find(p => p.id === id)).filter(Boolean);
+                document.getElementById('recentlyViewedGrid').innerHTML = recentProducts.map(product => `
+                    <div class="product-card" onclick="viewProduct(${product.id})">
+                        <div class="product-image">
+                            <img src="${product.image}" alt="${product.name}">
+                        </div>
+                        <div class="product-info">
+                            <div class="product-name">${product.name}</div>
+                            <div class="product-price">$${product.price}</div>
+                            <button class="add-to-cart" onclick="event.stopPropagation(); addToCart(${product.id})">
+                                <i class="fas fa-cart-plus"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        
         // Initialize
         displayProducts();
+        displayRecommendations();
+        displayRecentlyViewed();
+        startFlashSale();
+        
+        // Show random social proof every 10 seconds
+        setInterval(() => {
+            const randomProduct = products[Math.floor(Math.random() * products.length)];
+            showSocialProof(randomProduct.name);
+        }, 10000);
         
         // Add CSS animation
         const style = document.createElement('style');
