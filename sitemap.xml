@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://clickpulse.store/</loc>
-    <lastmod>2024-01-15</lastmod>
+    <loc>https://dancing-souffle-2d96a7.netlify.app/</loc>
+    <lastmod>2024-12-19</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://clickpulse.store/store.html</loc>
-    <lastmod>2024-01-15</lastmod>
+    <loc>https://dancing-souffle-2d96a7.netlify.app/store.html</loc>
+    <lastmod>2024-12-19</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://clickpulse.store/shop.html</loc>
-    <lastmod>2024-01-15</lastmod>
+    <loc>https://dancing-souffle-2d96a7.netlify.app/shop.html</loc>
+    <lastmod>2024-12-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
